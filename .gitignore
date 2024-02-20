@@ -1,0 +1,5 @@
+ori_data/*
+data/*
+checkpoints/*
+__pycache__/*
+*/__pycache__/*
