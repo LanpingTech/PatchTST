@@ -1,6 +1,5 @@
 import PatchTST
 from dataset import load_data
-from exp.exp_basic import Exp_Basic
 from utils.tools import EarlyStopping, adjust_learning_rate, visual, test_params_flop
 from utils.metrics import metric
 

@@ -31,8 +31,8 @@ class CustomTSDataset(Dataset):
     
 def load_data(data_dir, batch_size=32, split_ratio=0.2, random_state=42):
     print('Loading data...')
-    data_paths = sorted([os.path.join(data_dir, f) for f in os.listdir(data_dir) if f.startswith('data')])[:500]
-    target_paths = sorted([os.path.join(data_dir, f) for f in os.listdir(data_dir) if f.startswith('target')])[:500]
+    data_paths = sorted([os.path.join(data_dir, f) for f in os.listdir(data_dir) if f.startswith('data')])
+    target_paths = sorted([os.path.join(data_dir, f) for f in os.listdir(data_dir) if f.startswith('target')])
     assert len(data_paths) == len(target_paths), 'Number of data and target files must be the same'
 
     # Split data
@@ -40,18 +40,19 @@ def load_data(data_dir, batch_size=32, split_ratio=0.2, random_state=42):
     data_paths_train, data_paths_val, target_paths_train, target_paths_val = train_test_split(data_paths_train_val, target_paths_train_val, test_size=split_ratio, random_state=random_state)
 
     # scaler
-    scaler = StandardScaler()
-    target_scaler = StandardScaler()
-    pbar = tqdm(total=len(data_paths_train_val), desc='Fitting scaler')
-    pbar.set_description('Fitting scaler')
-    for i in range(len(data_paths_train_val)):
-        x = np.load(data_paths_train_val[i])
-        y = np.load(target_paths_train_val[i]).reshape(-1, 1)
-        scaler.partial_fit(x)
-        target_scaler.partial_fit(y)
-        pbar.update(1)
-        print(y.shape)
-    pbar.close()
+    # scaler = StandardScaler()
+    # target_scaler = StandardScaler()
+    # pbar = tqdm(total=len(data_paths_train_val), desc='Fitting scaler')
+    # pbar.set_description('Fitting scaler')
+    # for i in range(len(data_paths_train_val)): # normalization
+    #     x = np.load(data_paths_train_val[i])
+    #     y = np.load(target_paths_train_val[i]).reshape(-1, 1)
+    #     scaler.partial_fit(x)
+    #     target_scaler.partial_fit(y)
+    #     pbar.update(1)
+    # pbar.close()
+    scaler = None
+    target_scaler = None
 
     # Create datasets
     train_dataset = CustomTSDataset(data_paths_train, target_paths_train, scaler, target_scaler)
