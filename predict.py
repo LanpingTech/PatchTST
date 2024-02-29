@@ -2,8 +2,10 @@ import argparse
 import torch
 import random
 import numpy as np
+import pandas as pd
 
 import PatchTST
+from dataset import PredictTSDataset
 
 parser = argparse.ArgumentParser(description='Autoformer & Transformer family for Time Series Forecasting')
 
@@ -11,9 +13,9 @@ parser = argparse.ArgumentParser(description='Autoformer & Transformer family fo
 parser.add_argument('--random_seed', type=int, default=2024, help='random seed')
 
 # data loader
-parser.add_argument('--data_path', type=str, default='data', help='dataset path')
-parser.add_argument('--batch_size', type=int, default=128, help='batch size of input data')
-parser.add_argument('--split_ratio', type=float, default=0.2, help='train/val/test split ratio')
+parser.add_argument('--data_path', type=str, default='test.h5', help='dataset path')
+parser.add_argument('--batch_size', type=int, default=1, help='batch size of input data')
+
 parser.add_argument('--checkpoints', type=str, default='./checkpoints/', help='location of model checkpoints')
 
 # PatchTST
@@ -94,7 +96,18 @@ for key in list(state_dict.keys()):
     state_dict[key.replace('module.', '')] = state_dict.pop(key)
 model.load_state_dict(state_dict)
 
-data = None
+data = PredictTSDataset(args.data_path)
+loader = torch.utils.data.DataLoader(data, batch_size=args.batch_size, shuffle=False)
 
-output = model(data)
-print(output)
+results = []
+model.eval()
+with torch.no_grad():
+    for i, x in enumerate(loader):
+        x = x.to(device)
+        outputs = model(x)
+        outputs = outputs.squeeze().cpu().numpy()
+        results.append({'id': i, 'target': outputs})
+
+df = pd.DataFrame(results)
+df.to_csv('results.csv')
+

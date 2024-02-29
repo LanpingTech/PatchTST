@@ -1,4 +1,5 @@
 import os
+import h5py
 import numpy as np
 from tqdm import tqdm
 from torch.utils.data import Dataset, DataLoader
@@ -28,6 +29,27 @@ class CustomTSDataset(Dataset):
     
     def __len__(self):
         return len(self.data_paths)
+    
+class PredictTSDataset(Dataset):
+    def __init__(self, data_paths):
+        self.data_paths = data_paths
+        self.data = []
+        self.read_data()
+
+    def read_data(self):
+        self.data = []
+        f = h5py.File('ori_data/data.h5', 'r')
+        data_num = f['data'].shape[0]
+        for i in tqdm(range(data_num)):
+            self.data.append(f['data'][i])
+
+
+    def __getitem__(self, index):
+        x = self.data[index]
+        return x
+    
+    def __len__(self):
+        return len(self.data)
     
 def load_data(data_dir, batch_size=32, split_ratio=0.2, random_state=42):
     print('Loading data...')
